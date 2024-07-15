@@ -164,3 +164,5 @@ cython_debug/
 
 # streamlit
 .streamlit/secrets.toml
+
+.jpg:Zone.Identifier
