@@ -5,7 +5,7 @@ import streamlit as st
 import tensorflow as tf
 
 st.set_page_config(
-    page_title="Skin Cancer Detection",
+    page_title="Diagnose Demo",
     page_icon="♋",
     layout="centered",
     initial_sidebar_state="expanded",

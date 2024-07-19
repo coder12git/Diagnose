@@ -11,7 +11,7 @@ def load_lottieurl(url):
 
 
 st.set_page_config(
-    page_title="Skin Cancer",
+    page_title="Diagnose",
     page_icon="♋",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -70,7 +70,7 @@ with st.container():
         Our application utilizes machine learning to predict what skin disease you may have, from just your skin images!
         We then recommend you specialized doctors based on your type of disease, if our model predicts you're healthy we'll suggest you a general doctor.
         ##
-        [Learn More >](https://youtu.be/sFIXmJn3vGk)
+        [Learn More >]()
         """
     with cols[1]:
         st_lottie(lottie_healthy, height=300, key="healthy")

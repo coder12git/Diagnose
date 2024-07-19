@@ -1,70 +1,70 @@
 # Contact Feature
 
 import streamlit as st
-from geopy.geocoders import Nominatim
+import pandas as pd
+import pydeck as pdk
 import requests
 
 st.set_page_config(
-    page_title="Skin Cancer",
+    page_title="Diagnose",
     page_icon="♋",
     layout="centered",
     initial_sidebar_state="expanded",
 )
 
-# Replace YOUR_API_KEY with your actual API key
-api_key = st.secrets["api_key"]
-
 
 st.title("Find a dermatologist")
-# Set the location and radius for the search
+
+# Create a function to search for nearby doctors based on city name
+def search_doctors(city):
+    # Google Maps API key
+    api_key = st.secrets["API_KEY"]
+    url = f"https://maps.googleapis.com/maps/api/place/textsearch/json?query=dermatologists+in+{city}&key={api_key}"
+    results = requests.get(url).json()
+    return results["results"]
+
+
+# Input city name
 city = st.text_input(
     label="Enter your city",
     placeholder="City (e.g. New Delhi)",
     help="Enter the name of the city where you want to find a dermatologist",
 ).strip()
 
-if city != "":
-    # Create a geolocator object
-    geolocator = Nominatim(user_agent="skin_cancer")
+if city:
+    # Search for nearby doctors
+    doctors = search_doctors(city)
 
-    # Use the geolocator to get the latitude and longitude of the city
-    location = geolocator.geocode(city)
-    latitude = location.latitude
-    longitude = location.longitude
-
-    location = f"{latitude},{longitude}"
-    radius = 10000  # 10 km
-    keyword = "dermatologist"
-
-    # Make the request to the Places API
-    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={location}&radius={radius}&keyword={keyword}&key={api_key}"
-    response = requests.get(url)
-    results = response.json()["results"]
-
-    # Extract the place IDs of the results
-    place_ids = [result["place_id"] for result in results]
-
-    # Use the place IDs to get the details of the places
-    dermatologists = []
-    for place_id in place_ids:
-        url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&key={api_key}"
-        response = requests.get(url)
-        place_details = response.json()["result"]
-        dermatologists.append(
-            {
-                "name": place_details["name"],
-                "address": place_details["formatted_address"],
-            }
+    # Display the results to the user
+    st.write("Results for Dermatologist doctors in: ", city)
+    lat_long = [
+        (doc["geometry"]["location"]["lat"], doc["geometry"]["location"]["lng"])
+        for doc in doctors
+    ]
+    df = pd.DataFrame(lat_long, columns=["latitude", "longitude"])
+    st.pydeck_chart(
+        pdk.Deck(
+            map_style="mapbox://styles/mapbox/streets-v12",
+            initial_view_state=pdk.ViewState(
+                latitude=df["latitude"].mean(),
+                longitude=df["longitude"].mean(),
+                zoom=11,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    "ScatterplotLayer",
+                    data=df,
+                    get_position=["longitude", "latitude"],
+                    get_radius=100,
+                    get_color=[200, 30, 0],
+                    pickable=True,
+                    auto_highlight=True,
+                )
+            ],
         )
+    )
 
-    # Display the results in Streamlit
-    st.header("Results")
-    for i, dermatologist in enumerate(dermatologists, start=1):
-        # st.markdown(f"**{dermatologist['name']}**")
-        # st.markdown(dermatologist["address"])
-        st.markdown(
-            f"""
-            {i}. **{dermatologist['name']}**
-            > **Address:** {dermatologist['address']}
-            """
-        )
+    for i, doctor in enumerate(doctors):
+        st.write(f"{i+1}. **Name**: ", doctor["name"])
+        st.write("> **Address**: ", doctor["formatted_address"])
