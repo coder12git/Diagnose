@@ -70,7 +70,7 @@ with st.container():
         Our application utilizes machine learning to predict what skin disease you may have, from just your skin images!
         We then recommend you specialized doctors based on your type of disease, if our model predicts you're healthy we'll suggest you a general doctor.
         ##
-        [Learn More >]()
+        [Learn More >](https://youtu.be/4SZCctRP6pY?si=rJg-NmuyWCnfI59y)
         """
     with cols[1]:
         st_lottie(lottie_healthy, height=300, key="healthy")
